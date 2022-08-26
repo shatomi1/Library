@@ -5,9 +5,9 @@ import com.project.library.Db.OrderRepository;
 import com.project.library.Db.SubscriptionRepository;
 import com.project.library.model.Book;
 import com.project.library.model.Order;
-import com.project.library.model.Reader;
 import com.project.library.model.Subscription;
 
+import com.project.library.model.User;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -17,6 +17,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
@@ -46,6 +47,7 @@ public class SubscriptionController {
                     content = @Content),
             @ApiResponse(responseCode = "404", description = "Subscriptions not found",
                     content = @Content) })
+    @PreAuthorize("hasRole('ROLE_ADMIN') OR hasRole('ROLE_LIBRARIAN')")
     @GetMapping("/list")
     public List<Subscription> getList() {
 
@@ -59,6 +61,7 @@ public class SubscriptionController {
         return list;
     }
 
+
     @Operation(summary = "Get a subscription by its id")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Subscription found",
@@ -68,6 +71,7 @@ public class SubscriptionController {
                     content = @Content),
             @ApiResponse(responseCode = "404", description = "Subscription not found",
                     content = @Content) })
+    @PreAuthorize("hasRole('ROLE_ADMIN') OR hasRole('ROLE_LIBRARIAN')")
     @GetMapping("/{id}")
     public Subscription getSubscription(@Parameter(description = "id of subscription to be searched") @PathVariable long id) {
 
@@ -90,6 +94,7 @@ public class SubscriptionController {
                     content = @Content),
             @ApiResponse(responseCode = "404", description = "Subscription not added",
                     content = @Content) })
+    @PreAuthorize("hasRole('ROLE_ADMIN') OR hasRole('ROLE_LIBRARIAN')")
     @PostMapping("/add")
     public Subscription addSubscription(@Parameter(description = "id of order to be added in the subscription") @RequestParam Long idOrder, @Parameter(description = "duration(in days) to be added in the subscription") @RequestParam Long duration) {
 
@@ -99,14 +104,14 @@ public class SubscriptionController {
 
             Order order = orderRepository.findById(idOrder).get();
 
-            Reader reader = order.getReader();
+            User user = order.getUser();
             Book book = order.getBook();
             LocalDate givenDate = LocalDate.now();
             LocalDate returnDate = givenDate.plusDays(duration);
 
             orderRepository.deleteById(order.getId());
 
-            newSubscription = subscriptionRepository.save(new Subscription(-1, reader, book, givenDate, returnDate, 0));
+            newSubscription = subscriptionRepository.save(new Subscription(-1, user, book, givenDate, returnDate, 0));
 
             logger.info("Adding subscription with id {}", newSubscription.getId());
         } else {
@@ -127,6 +132,7 @@ public class SubscriptionController {
                     content = @Content),
             @ApiResponse(responseCode = "404", description = "Subscription not found",
                     content = @Content) })
+    @PreAuthorize("hasRole('ROLE_ADMIN') OR hasRole('ROLE_LIBRARIAN')")
     @PutMapping("/{id}/update")
     public Subscription updateSubscription(@Parameter(description = "id of subscription to be updated") @PathVariable Long id, @Parameter(description = "days to be added in the duration´s subscription") @RequestParam Long plus) {
 
@@ -155,6 +161,7 @@ public class SubscriptionController {
                     content = @Content),
             @ApiResponse(responseCode = "404", description = "Subscription not found",
                     content = @Content) })
+    @PreAuthorize("hasRole('ROLE_ADMIN') OR hasRole('ROLE_LIBRARIAN')")
     @DeleteMapping("/{id}/delete")
     public void deleteSubscription(@Parameter(description = "id of subscription to be deleted") @PathVariable Long id) {
 

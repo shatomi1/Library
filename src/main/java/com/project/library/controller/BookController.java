@@ -14,6 +14,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -49,6 +50,7 @@ public class BookController {
                     content = @Content),
             @ApiResponse(responseCode = "404", description = "Catalog not found",
                     content = @Content) })
+    @PreAuthorize("hasRole('ROLE_ADMIN') OR hasRole('ROLE_READER') OR hasRole('ROLE_LIBRARIAN')")
     @GetMapping("/list")
     public List<Book> getList() {
 
@@ -71,6 +73,7 @@ public class BookController {
                     content = @Content),
             @ApiResponse(responseCode = "404", description = "Catalog not found",
                     content = @Content) })
+    @PreAuthorize("hasRole('ROLE_ADMIN') OR hasRole('ROLE_READER') OR hasRole('ROLE_LIBRARIAN')")
     @GetMapping("/list/author")
     public List<Book> getListByAuthor() {
 
@@ -93,6 +96,7 @@ public class BookController {
                     content = @Content),
             @ApiResponse(responseCode = "404", description = "Catalog not found",
                     content = @Content) })
+    @PreAuthorize("hasRole('ROLE_ADMIN') OR hasRole('ROLE_READER') OR hasRole('ROLE_LIBRARIAN')")
     @GetMapping("/list/name")
     public List<Book> getListByName() {
 
@@ -115,6 +119,7 @@ public class BookController {
                     content = @Content),
             @ApiResponse(responseCode = "404", description = "Catalog not found",
                     content = @Content) })
+    @PreAuthorize("hasRole('ROLE_ADMIN') OR hasRole('ROLE_READER') OR hasRole('ROLE_LIBRARIAN')")
     @GetMapping("/list/publish")
     public List<Book> getListByPublish() {
 
@@ -137,6 +142,7 @@ public class BookController {
                     content = @Content),
             @ApiResponse(responseCode = "404", description = "Catalog not found",
                     content = @Content) })
+    @PreAuthorize("hasRole('ROLE_ADMIN') OR hasRole('ROLE_READER') OR hasRole('ROLE_LIBRARIAN')")
     @GetMapping("/list/date")
     public List<Book> getListByDate() {
 
@@ -159,6 +165,7 @@ public class BookController {
                     content = @Content),
             @ApiResponse(responseCode = "404", description = "Book not found",
                     content = @Content) })
+    @PreAuthorize("hasRole('ROLE_ADMIN') OR hasRole('ROLE_READER') OR hasRole('ROLE_LIBRARIAN')")
     @GetMapping("/{isbn}")
     public Book getBook(@Parameter(description = "id of book to be searched") @PathVariable Long isbn) {
 
@@ -182,6 +189,7 @@ public class BookController {
                     content = @Content),
             @ApiResponse(responseCode = "404", description = "Book not added",
                     content = @Content) })
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PostMapping("/add")
     public Book addBook(@RequestBody Book book) {
 
@@ -200,6 +208,7 @@ public class BookController {
                     content = @Content),
             @ApiResponse(responseCode = "404", description = "Book not found",
                     content = @Content) })
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PutMapping("/{isbn}/update")
     public Book updateBook(@Parameter(description = "isbn of book to be updated") @PathVariable Long isbn, @RequestBody Book book) {
 
@@ -219,6 +228,7 @@ public class BookController {
                     content = @Content),
             @ApiResponse(responseCode = "404", description = "Book not found",
                     content = @Content) })
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @DeleteMapping("/{isbn}/delete")
     public void deleteBook(@Parameter(description = "isbn of book to be deleted") @PathVariable Long isbn) {
 

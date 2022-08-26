@@ -12,6 +12,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -33,6 +34,7 @@ public class UserController {
                     content = @Content),
             @ApiResponse(responseCode = "404", description = "Users not found",
                     content = @Content) })
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @GetMapping("/list")
     public List<User> list() {
         List<User> users = (List<User>) userRepository.findAll();
@@ -54,6 +56,7 @@ public class UserController {
                     content = @Content),
             @ApiResponse(responseCode = "404", description = "User not found",
                     content = @Content) })
+    @PreAuthorize("hasRole('ROLE_ADMIN') OR hasRole('ROLE_READER') OR hasRole('ROLE_LIBRARIAN')")
     @GetMapping("/{id}")
     public User get(@Parameter(description = "id of user to be added") @PathVariable long id) {
 
@@ -77,6 +80,7 @@ public class UserController {
                     content = @Content),
             @ApiResponse(responseCode = "404", description = "User not added",
                     content = @Content) })
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PostMapping("/add")
     public User addUser(@RequestBody User user) {
 
@@ -95,6 +99,7 @@ public class UserController {
                     content = @Content),
             @ApiResponse(responseCode = "404", description = "User not found",
                     content = @Content) })
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PutMapping("/{id}/update")
     public User updateUser(@Parameter(description = "id of user to be updated") @PathVariable Long id, @RequestBody User user) {
         user.setId(id);
@@ -113,6 +118,7 @@ public class UserController {
                     content = @Content),
             @ApiResponse(responseCode = "404", description = "User not found",
                     content = @Content) })
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @DeleteMapping("/{id}/delete")
     public void deleteUser(@Parameter(description = "id of user to be deleted")@PathVariable Long id) {
 

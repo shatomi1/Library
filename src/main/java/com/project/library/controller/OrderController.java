@@ -2,11 +2,11 @@ package com.project.library.controller;
 
 import com.project.library.Db.BookRepository;
 import com.project.library.Db.OrderRepository;
-import com.project.library.Db.ReaderRepository;
+import com.project.library.Db.UserRepository;
 import com.project.library.model.Book;
 import com.project.library.model.Order;
-import com.project.library.model.Reader;
 
+import com.project.library.model.User;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -16,6 +16,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
@@ -31,7 +32,7 @@ public class OrderController {
     private OrderRepository orderRepository;
 
     @Autowired
-    private ReaderRepository readerRepository;
+    private UserRepository userRepository;
 
     @Autowired
     private BookRepository bookRepository;
@@ -45,6 +46,7 @@ public class OrderController {
                     content = @Content),
             @ApiResponse(responseCode = "404", description = "Orders not found",
                     content = @Content) })
+    @PreAuthorize("hasRole('ROLE_ADMIN') OR hasRole('ROLE_LIBRARIAN')")
     @GetMapping("/list")
     public List<Order> getList() {
 
@@ -67,6 +69,7 @@ public class OrderController {
                     content = @Content),
             @ApiResponse(responseCode = "404", description = "Order not found",
                     content = @Content) })
+    @PreAuthorize("hasRole('ROLE_ADMIN') OR hasRole('ROLE_LIBRARIAN')")
     @GetMapping("/{id}")
     public Order getOrder(@Parameter(description = "id of order to be searched") @PathVariable long id) {
 
@@ -90,19 +93,20 @@ public class OrderController {
                     content = @Content),
             @ApiResponse(responseCode = "404", description = "Order not added",
                     content = @Content) })
+    @PreAuthorize("hasRole('ROLE_ADMIN') OR hasRole('ROLE_LIBRARIAN') OR hasRole('ROLE_READER')")
     @PostMapping("/add")
     public Order addOrder(@Parameter(description = "id of user to be added in the order") @RequestParam Long idUser, @Parameter(description = "id of book to be added in the order") @RequestParam Long idBook) {
 
         Order savedOrder = null;
 
-        if (readerRepository.findById(idUser).isPresent() && bookRepository.findById(idBook).isPresent()) {
+        if (userRepository.findById(idUser).isPresent() && bookRepository.findById(idBook).isPresent()) {
 
             Book book = bookRepository.findById(idBook).get();
-            Reader reader = readerRepository.findById(idUser).get();
+            User user = userRepository.findById(idUser).get();
 
             if (book.getCopies() > 0) {
 
-                savedOrder = orderRepository.save(new Order(-1, reader, book, LocalDate.now()));
+                savedOrder = orderRepository.save(new Order(-1, user, book, LocalDate.now()));
 
                 book.setCopies(book.getCopies() - 1);
                 bookRepository.save(book);
@@ -113,7 +117,7 @@ public class OrderController {
                 logger.error("Book with id {} has no copies", book.getIsbn());
             }
         } else {
-            logger.error("Reader or book not found");
+            logger.error("User or book not found");
         }
         return savedOrder;
     }
@@ -127,6 +131,7 @@ public class OrderController {
                     content = @Content),
             @ApiResponse(responseCode = "404", description = "Order not found",
                     content = @Content) })
+    @PreAuthorize("hasRole('ROLE_ADMIN') OR hasRole('ROLE_LIBRARIAN')")
     @DeleteMapping("/{id}/delete")
     public void deleteOrder(@Parameter(description = "id of order to be deleted") @PathVariable Long id) {
 
